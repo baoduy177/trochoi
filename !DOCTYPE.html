@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Trò chơi đối thoại</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
+    .question { font-size: 20px; margin-bottom: 20px; }
+    .btn { display: block; margin: 10px auto; padding: 12px; width: 300px;
+           background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn:hover { background: #45a049; }
+    .result { margin-top: 20px; font-size: 22px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="question">
+    Kẻ lừa đảo: "Bạn vừa trúng iPhone 15 Pro Max! Hãy bấm link này và điền thông tin cá nhân."
+  </div>
+  <button class="btn" onclick="showResult(false)">1. Điền thông tin ngay để nhận quà</button>
+  <button class="btn" onclick="showResult(true)">2. Bỏ qua và kiểm tra lại thông tin từ nguồn chính thức</button>
+  <button class="btn" onclick="showResult(false)">3. Chia sẻ link cho bạn bè cùng tham gia</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function showResult(correct) {
+      const resultBox = document.getElementById("result");
+      if (correct) {
+        resultBox.innerHTML = "✅ Chúc mừng, bạn đã tránh được bẫy lừa đảo!";
+        resultBox.style.color = "green";
+      } else {
+        resultBox.innerHTML = "❌ Bạn đã bị lừa, mất thông tin cá nhân!";
+        resultBox.style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>
