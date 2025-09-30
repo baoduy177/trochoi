@@ -1,38 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Trò chơi đối thoại</title>
+  <title>Trò chơi đối thoại - Nhận biết lừa đảo</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
-    .question { font-size: 20px; margin-bottom: 20px; }
-    .btn { display: block; margin: 10px auto; padding: 12px; width: 300px;
-           background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; }
-    .btn:hover { background: #45a049; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f4f6f9; }
+    h2 { color: #1976d2; }
+    .question { font-size: 20px; margin: 20px 0; font-weight: bold; }
+    .btn {
+      display: block; margin: 10px auto; padding: 12px;
+      width: 420px; background: #1976d2; color: white;
+      border: none; border-radius: 8px; cursor: pointer;
+      font-size: 16px; transition: 0.3s;
+    }
+    .btn:hover { background: #0d47a1; }
     .result { margin-top: 20px; font-size: 22px; font-weight: bold; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <div class="question">
-    Kẻ lừa đảo: "Bạn vừa trúng iPhone 15 Pro Max! Hãy bấm link này và điền thông tin cá nhân."
-  </div>
-  <button class="btn" onclick="showResult(false)">1. Điền thông tin ngay để nhận quà</button>
-  <button class="btn" onclick="showResult(true)">2. Bỏ qua và kiểm tra lại thông tin từ nguồn chính thức</button>
-  <button class="btn" onclick="showResult(false)">3. Chia sẻ link cho bạn bè cùng tham gia</button>
 
+  <h2>🎮 Trò chơi: Đối thoại với kẻ lừa đảo</h2>
+  <div id="game"></div>
   <div class="result" id="result"></div>
+  <button class="btn hidden" id="nextBtn" onclick="nextQuestion()">👉 Câu tiếp theo</button>
 
   <script>
-    function showResult(correct) {
-      const resultBox = document.getElementById("result");
+    const questions = [
+      {
+        q: 'Kẻ lừa đảo: "Bạn vừa trúng iPhone 15 Pro Max! Hãy bấm link này và điền thông tin cá nhân."',
+        answers: [
+          { text: "1. Điền thông tin ngay để nhận quà", correct: false },
+          { text: "2. Bỏ qua và kiểm tra lại thông tin từ nguồn chính thức", correct: true },
+          { text: "3. Chia sẻ link cho bạn bè cùng tham gia", correct: false }
+        ]
+      },
+      {
+        q: 'Kẻ lừa đảo: "Tài khoản ngân hàng của bạn đã bị khóa. Hãy bấm link dưới đây để xác minh."',
+        answers: [
+          { text: "1. Bấm link và nhập mật khẩu ngay", correct: false },
+          { text: "2. Liên hệ trực tiếp tổng đài ngân hàng để xác minh", correct: true },
+          { text: "3. Gửi thông tin thẻ cho số điện thoại trong tin nhắn", correct: false }
+        ]
+      },
+      {
+        q: 'Kẻ lừa đảo: "Tớ cần gấp 2 triệu, chuyển vào tài khoản này ngay giúp tớ với."',
+        answers: [
+          { text: "1. Chuyển tiền ngay để giúp bạn", correct: false },
+          { text: "2. Gọi điện/video call để xác minh đúng bạn mình không", correct: true },
+          { text: "3. Không cần kiểm tra, cứ gửi tiền trước cho nhanh", correct: false }
+        ]
+      },
+      {
+        q: 'Kẻ lừa đảo: "Chúc mừng! Bạn trúng học bổng 100 triệu. Hãy gửi trước 2 triệu phí hồ sơ."',
+        answers: [
+          { text: "1. Gửi ngay phí hồ sơ để giữ suất", correct: false },
+          { text: "2. Kiểm tra lại thông tin trên website chính thức của trường", correct: true },
+          { text: "3. Chia sẻ email này cho bạn bè để cùng đăng ký", correct: false }
+        ]
+      }
+    ];
+
+    let current = 0;
+
+    function loadQuestion() {
+      const q = questions[current];
+      const gameDiv = document.getElementById("game");
+      const resultDiv = document.getElementById("result");
+      const nextBtn = document.getElementById("nextBtn");
+
+      resultDiv.innerHTML = "";
+      nextBtn.classList.add("hidden");
+
+      let html = `<div class="question">${q.q}</div>`;
+      q.answers.forEach((a) => {
+        html += `<button class="btn" onclick="checkAnswer(${a.correct})">${a.text}</button>`;
+      });
+      gameDiv.innerHTML = html;
+    }
+
+    function checkAnswer(correct) {
+      const resultDiv = document.getElementById("result");
+      const nextBtn = document.getElementById("nextBtn");
       if (correct) {
-        resultBox.innerHTML = "✅ Chúc mừng, bạn đã tránh được bẫy lừa đảo!";
-        resultBox.style.color = "green";
+        resultDiv.innerHTML = "✅ Chính xác! Bạn đã an toàn.";
+        resultDiv.style.color = "green";
       } else {
-        resultBox.innerHTML = "❌ Bạn đã bị lừa, mất thông tin cá nhân!";
-        resultBox.style.color = "red";
+        resultDiv.innerHTML = "❌ Sai rồi! Bạn đã bị lừa.";
+        resultDiv.style.color = "red";
+      }
+      if (current < questions.length - 1) {
+        nextBtn.classList.remove("hidden");
       }
     }
+
+    function nextQuestion() {
+      current++;
+      loadQuestion();
+    }
+
+    // Bắt đầu game
+    loadQuestion();
   </script>
 </body>
 </html>
+
