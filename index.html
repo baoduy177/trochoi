@@ -2,33 +2,70 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Trò chơi đối thoại - Nhận biết lừa đảo</title>
+  <title>Trò chơi nhận biết lừa đảo</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #f4f6f9; }
-    h2 { color: #1976d2; }
-    .question { font-size: 20px; margin: 20px 0; font-weight: bold; }
-    .btn {
-      display: block; margin: 10px auto; padding: 12px;
-      width: 420px; background: #1976d2; color: white;
-      border: none; border-radius: 8px; cursor: pointer;
-      font-size: 16px; transition: 0.3s;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f6fc;
+      text-align: center;
+      padding: 20px;
     }
-    .btn:hover { background: #0d47a1; }
-    .result { margin-top: 20px; font-size: 22px; font-weight: bold; }
-    .hidden { display: none; }
+    #game {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .correct { background: #4CAF50; color: white; }
+    .wrong { background: #E53935; color: white; }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+  <div id="game">
+    <h2>🎯 Trò chơi: Nhận biết lừa đảo</h2>
+    <img id="questionImage" src="" alt="Câu hỏi">
+    <p id="question"></p>
+    <div id="answers"></div>
+    <div id="result"></div>
+  </div>
 
-  <h2>🎮 Trò chơi: Đối thoại với kẻ lừa đảo</h2>
-  <div id="game"></div>
-  <div class="result" id="result"></div>
-  <button class="btn hidden" id="nextBtn" onclick="nextQuestion()">👉 Câu tiếp theo</button>
+  <!-- Âm thanh phản hồi -->
+  <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-4.mp3"></audio>
+  <audio id="wrongSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
 
   <script>
     const questions = [
       {
         q: 'Kẻ lừa đảo: "Bạn vừa trúng iPhone 15 Pro Max! Hãy bấm link này và điền thông tin cá nhân."',
+        img: "https://media.istockphoto.com/id/1174094912/photo/fake-prize-scam.jpg?s=612x612&w=0&k=20&c=7L4PPTi0P0zq9hV9da57QwIMPSMn9rP00HgLaAunG0I=",
         answers: [
           { text: "1. Điền thông tin ngay để nhận quà", correct: false },
           { text: "2. Bỏ qua và kiểm tra lại thông tin từ nguồn chính thức", correct: true },
@@ -37,6 +74,7 @@
       },
       {
         q: 'Kẻ lừa đảo: "Tài khoản ngân hàng của bạn đã bị khóa. Hãy bấm link dưới đây để xác minh."',
+        img: "https://media.istockphoto.com/id/1338948820/photo/phishing-email-scam.jpg?s=612x612&w=0&k=20&c=FhKge9lVSm4jST17NfQrxFlBpgsD2qP3dBWOPN9Ue3w=",
         answers: [
           { text: "1. Bấm link và nhập mật khẩu ngay", correct: false },
           { text: "2. Liên hệ trực tiếp tổng đài ngân hàng để xác minh", correct: true },
@@ -45,6 +83,7 @@
       },
       {
         q: 'Kẻ lừa đảo: "Tớ cần gấp 2 triệu, chuyển vào tài khoản này ngay giúp tớ với."',
+        img: "https://media.istockphoto.com/id/1175050782/photo/fake-friend-scam.jpg?s=612x612&w=0&k=20&c=BeKQ8waQeF95Y0wRMyoRnciCe1UvopTBWQGqTxB8oHg=",
         answers: [
           { text: "1. Chuyển tiền ngay để giúp bạn", correct: false },
           { text: "2. Gọi điện/video call để xác minh đúng bạn mình không", correct: true },
@@ -53,6 +92,7 @@
       },
       {
         q: 'Kẻ lừa đảo: "Chúc mừng! Bạn trúng học bổng 100 triệu. Hãy gửi trước 2 triệu phí hồ sơ."',
+        img: "https://media.istockphoto.com/id/1138011783/photo/fake-scholarship-letter.jpg?s=612x612&w=0&k=20&c=rwQ6n7uc1nYMPVf9QkS9b3cdV_vdyPspZedFTKBImfE=",
         answers: [
           { text: "1. Gửi ngay phí hồ sơ để giữ suất", correct: false },
           { text: "2. Kiểm tra lại thông tin trên website chính thức của trường", correct: true },
@@ -61,47 +101,48 @@
       }
     ];
 
-    let current = 0;
+    let currentQuestion = 0;
 
     function loadQuestion() {
-      const q = questions[current];
-      const gameDiv = document.getElementById("game");
-      const resultDiv = document.getElementById("result");
-      const nextBtn = document.getElementById("nextBtn");
+      const q = questions[currentQuestion];
+      document.getElementById("question").textContent = q.q;
+      document.getElementById("questionImage").src = q.img;
 
-      resultDiv.innerHTML = "";
-      nextBtn.classList.add("hidden");
+      const answersDiv = document.getElementById("answers");
+      answersDiv.innerHTML = "";
 
-      let html = `<div class="question">${q.q}</div>`;
-      q.answers.forEach((a) => {
-        html += `<button class="btn" onclick="checkAnswer(${a.correct})">${a.text}</button>`;
+      q.answers.forEach(answer => {
+        const btn = document.createElement("button");
+        btn.textContent = answer.text;
+        btn.onclick = () => selectAnswer(answer.correct, btn);
+        answersDiv.appendChild(btn);
       });
-      gameDiv.innerHTML = html;
+
+      document.getElementById("result").textContent = "";
     }
 
-    function checkAnswer(correct) {
-      const resultDiv = document.getElementById("result");
-      const nextBtn = document.getElementById("nextBtn");
+    function selectAnswer(correct, btn) {
       if (correct) {
-        resultDiv.innerHTML = "✅ Chính xác! Bạn đã an toàn.";
-        resultDiv.style.color = "green";
+        btn.classList.add("correct");
+        document.getElementById("result").textContent = "✅ Chính xác! Bạn đã không bị lừa.";
+        document.getElementById("correctSound").play();
       } else {
-        resultDiv.innerHTML = "❌ Sai rồi! Bạn đã bị lừa.";
-        resultDiv.style.color = "red";
+        btn.classList.add("wrong");
+        document.getElementById("result").textContent = "❌ Sai rồi! Đây là một chiêu lừa đảo.";
+        document.getElementById("wrongSound").play();
       }
-      if (current < questions.length - 1) {
-        nextBtn.classList.remove("hidden");
-      }
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML = "<h2>🎉 Chúc mừng! Bạn đã hoàn thành trò chơi và tránh được mọi cú lừa.</h2>";
+        }
+      }, 2000);
     }
 
-    function nextQuestion() {
-      current++;
-      loadQuestion();
-    }
-
-    // Bắt đầu game
     loadQuestion();
   </script>
 </body>
 </html>
-
